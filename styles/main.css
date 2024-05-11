@@ -14,20 +14,76 @@ canvas {
   height: 100%;
   display: block;   /* this is IMPORTANT! */
   margin: auto;
+  cursor: crosshair;
+}
+
+/*selectors*/
+#selectors {
+  margin-top: 25px;
 }
 
  /* color*/
 .color-button {
   margin: 5px;
   padding: 10px;
-  border: none;
+  border: 1px solid #000;
   cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  border-radius: 10%;
 }
 
-.color-button:focus {
-  outline: none;
+.color-button:active {
+  transform: scale(1.2); 
+  transition: transform 0.2s ease; 
 }
 
+#black-button {
+  background-color: #000;
+  color: rgb(248, 245, 242);
+}
+
+#gray-button {
+  background-color: rgb(128, 128, 128);
+  color: rgb(248, 245, 242);
+}
+
+#white-button {
+  background-color: rgb(248, 245, 242);
+}
+
+#red-button {
+  background-color: rgb(255, 0, 0);
+  color: rgb(248, 245, 242);
+}
+
+#orange-button {
+  background-color: rgb(255,165,0);
+}
+
+#yellow-button {
+  background-color: rgb(255,255,0);
+}
+
+#green-button {
+  background-color: rgb(0,128,0);
+  color: rgb(248, 245, 242);
+}
+
+#blue-button {
+  background-color: rgb(0,0,255);
+  color: rgb(248, 245, 242);
+}
+
+#indigo-button {
+  background-color: rgb(75,0,130);
+  color: rgb(248, 245, 242);
+}
+
+#violet-button {
+  background-color: rgb(238,130,238);
+}
+
+/*line thickness*/
 #line-thickness-slider-container {
   position: relative;
   padding: 0 25% 0 25%;
@@ -40,9 +96,8 @@ canvas {
 }
 
 #line-thickness-slider::-webkit-slider-runnable-track {
-  background: #90bac7; /* Change to desired color */
+  background: #90bac7;
   border: 1px solid #000;
-
 }
 
 #line-thickness-indicator-container {
@@ -56,3 +111,17 @@ canvas {
   background-color: black; /* Default color */
 }
 
+/*important-buttons*/
+.important-buttons {
+  width: 30%;
+  height: 50px;
+  margin: 20px;
+  cursor: pointer;
+  background-color: #90bac7;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+}
+
+.important-buttons:active {
+  transform: scale(1.2); 
+  transition: transform 0.2s ease; 
+}
