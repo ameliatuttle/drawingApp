@@ -2,8 +2,11 @@ var DrawingProgram = /** @class */ (function () {
     function DrawingProgram(canvas) {
         var _this = this;
         this.canvas = canvas;
+        this.canvas.width = this.canvas.offsetWidth; // Set canvas width to match container width
+        this.canvas.height = this.canvas.offsetHeight; // Set canvas height to match container height
         this.context = canvas.getContext("2d");
-        this.context.lineCap = 'round';
+        this.context.lineJoin = "round";
+        this.context.lineCap = "round";
         this.isDrawing = false;
         this.lastX = 0;
         this.lastY = 0;
@@ -20,28 +23,32 @@ var DrawingProgram = /** @class */ (function () {
         this.canvas.addEventListener("touchend", this.handleTouchEnd.bind(this));
         this.canvas.addEventListener("touchcancel", this.handleTouchEnd.bind(this));
         // Add event listeners for color buttons
-        var colorButtons = document.querySelectorAll(".colorButton");
+        var colorButtons = document.querySelectorAll(".color-button");
         colorButtons.forEach(function (button) {
             button.addEventListener("click", function (event) { return _this.colorManager.changeColor(event); });
         });
+        // Create CanvasResizer instance after DrawingProgram is fully initialized
+        this.canvasResizer = new CanvasResizer(canvas, this);
     }
     DrawingProgram.prototype.startDrawing = function (event) {
+        var rect = this.canvas.getBoundingClientRect();
         if (event instanceof MouseEvent) {
-            this.lastX = event.offsetX;
-            this.lastY = event.offsetY;
+            this.lastX = event.clientX - rect.left;
+            this.lastY = event.clientY - rect.top;
         }
         else if (event instanceof TouchEvent) {
             var touch = event.touches[0];
-            this.lastX = touch.clientX - this.canvas.offsetLeft;
-            this.lastY = touch.clientY - this.canvas.offsetTop;
+            this.lastX = touch.clientX - rect.left;
+            this.lastY = touch.clientY - rect.top;
         }
         this.isDrawing = true;
     };
     DrawingProgram.prototype.draw = function (event) {
         if (!this.isDrawing)
             return;
-        var offsetX = event instanceof MouseEvent ? event.offsetX : event.touches[0].clientX - this.canvas.offsetLeft;
-        var offsetY = event instanceof MouseEvent ? event.offsetY : event.touches[0].clientY - this.canvas.offsetTop;
+        var rect = this.canvas.getBoundingClientRect();
+        var offsetX = (event instanceof MouseEvent ? event.clientX : event.touches[0].clientX) - rect.left;
+        var offsetY = (event instanceof MouseEvent ? event.clientY : event.touches[0].clientY) - rect.top;
         var path = new Path2D();
         path.moveTo(this.lastX, this.lastY);
         path.lineTo(offsetX, offsetY);
@@ -55,12 +62,15 @@ var DrawingProgram = /** @class */ (function () {
         this.isDrawing = false;
     };
     DrawingProgram.prototype.handleTouchStart = function (event) {
+        event.preventDefault(); // Prevent default touch behavior
         this.startDrawing(event);
     };
     DrawingProgram.prototype.handleTouchMove = function (event) {
+        event.preventDefault(); // Prevent default touch behavior
         this.draw(event);
     };
     DrawingProgram.prototype.handleTouchEnd = function (event) {
+        event.preventDefault(); // Prevent default touch behavior
         this.stopDrawing();
     };
     return DrawingProgram;
@@ -88,8 +98,10 @@ var LineManager = /** @class */ (function () {
         this.changeThicknessEvent = new Event('lineThicknessChange');
         this.canvas = canvas;
         // Add event listener for line thickness slider
-        var lineThicknessSlider = document.getElementById("lineThicknessSlider");
+        var lineThicknessSlider = document.getElementById("line-thickness-slider");
         lineThicknessSlider.addEventListener("input", function () { return _this.changeLineThickness(lineThicknessSlider.value); });
+        // Update indicator position initially
+        this.updateThicknessIndicator();
         // Listen for line thickness change event
         document.addEventListener('lineThicknessChange', function () { return _this.updateThicknessIndicator(); });
     }
@@ -101,11 +113,10 @@ var LineManager = /** @class */ (function () {
         return this.lineThickness;
     };
     LineManager.prototype.updateThicknessIndicator = function () {
-        var indicator = document.getElementById("lineThicknessIndicator");
+        var indicator = document.getElementById("line-thickness-indicator");
+        var slider = document.getElementById("line-thickness-slider");
         var thickness = this.getCurrentLineThickness();
-        var sliderWidth = this.canvas.clientWidth;
-        var offset = (thickness / 2) / sliderWidth * 100; // Calculate offset as percentage of slider width
-        indicator.style.left = "calc(".concat(this.lineThickness, "% - ").concat(offset, "px)"); // Set left position
+        var sliderWidth = slider.clientWidth;
         indicator.style.width = "".concat(thickness, "px"); // Set width
         indicator.style.height = "".concat(thickness, "px"); // Set height
     };
@@ -116,7 +127,7 @@ var SaveManager = /** @class */ (function () {
         var _this = this;
         this.canvas = canvas;
         // Add event listener for save button
-        var saveButton = document.getElementById("saveButton");
+        var saveButton = document.getElementById("save-button");
         saveButton.addEventListener("click", function () { return _this.saveCanvasImage(); });
     }
     SaveManager.prototype.saveCanvasImage = function () {
@@ -133,7 +144,7 @@ var ClearManager = /** @class */ (function () {
         var _this = this;
         this.canvas = canvas;
         this.context = context;
-        var clearButton = document.getElementById("clearButton");
+        var clearButton = document.getElementById("clear-button");
         clearButton.addEventListener("click", function () { return _this.clearCanvas(); });
     }
     ClearManager.prototype.clearCanvas = function () {
@@ -141,7 +152,29 @@ var ClearManager = /** @class */ (function () {
     };
     return ClearManager;
 }());
+var CanvasResizer = /** @class */ (function () {
+    function CanvasResizer(canvas, drawingProgram) {
+        this.canvas = canvas;
+        this.drawingProgram = drawingProgram; // Store the reference to the DrawingProgram
+        window.addEventListener("resize", this.resizeCanvas.bind(this));
+        this.resizeCanvas();
+    }
+    CanvasResizer.prototype.resizeCanvas = function () {
+        var screenWidth = window.innerWidth;
+        var screenHeight = window.innerHeight;
+        var widthPercentage = 80; // Adjust this value to set the desired width percentage of the screen
+        var heightPercentage = 80; // Adjust this value to set the desired height percentage of the screen
+        var canvasWidth = (widthPercentage / 100) * screenWidth;
+        var canvasHeight = (heightPercentage / 100) * screenHeight;
+        this.canvas.width = canvasWidth;
+        this.canvas.height = canvasHeight;
+        // After resizing, reapply the line join and line cap properties
+        this.drawingProgram.context.lineJoin = "round";
+        this.drawingProgram.context.lineCap = "round";
+    };
+    return CanvasResizer;
+}());
 document.addEventListener("DOMContentLoaded", function () {
     var canvas = document.getElementById("canvas");
-    new DrawingProgram(canvas);
+    var drawingProgram = new DrawingProgram(canvas);
 });

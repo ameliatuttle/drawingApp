@@ -5,28 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Basic Drawing App | Amelia Tuttle | Sprint 1">
   <title>Drawing App</title>
-  <link rel="stylesheet" href="main.css">
-  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="/styles/main.css">
+  <script src="/scripts/script.js" defer></script>
+  <head>
+    <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico" />
+  </head>
 </head>
 <body>
-  <div id="colorButtons">
-    <button id="blackButton" class="colorButton" data-color="0,0,0">Black</button>
-    <button id="grayButton" class="colorButton" data-color="128,128,128">Gray</button>
-    <button id="whiteButton" class="colorButton" data-color="255,255,255">White</button>
-    <button id="redButton" class="colorButton" data-color="255,0,0">Red</button>
-    <button id="orangeButton" class="colorButton" data-color="255,165,0">Orange</button>
-    <button id="yellowButton" class="colorButton" data-color="255,255,0">Yellow</button>
-    <button id="greenButton" class="colorButton" data-color="0,128,0">Green</button>
-    <button id="blueButton" class="colorButton" data-color="0,0,255">Blue</button>
-    <button id="indigoButton" class="colorButton" data-color="75,0,130">Indigo</button>
-    <button id="violetButton" class="colorButton" data-color="238,130,238">Violet</button>    
+  <div id="selectors">
+    <div id="color-buttons">
+      <button id="black-button" class="color-button" data-color="0,0,0">Black</button>
+      <button id="gray-button" class="color-button" data-color="128,128,128">Gray</button>
+      <button id="white-button" class="color-button" data-color="248,245,242">White</button>
+      <button id="red-button" class="color-button" data-color="255,0,0">Red</button>
+      <button id="orange-button" class="color-button" data-color="255,165,0">Orange</button>
+      <button id="yellow-button" class="color-button" data-color="255,255,0">Yellow</button>
+      <button id="green-button" class="color-button" data-color="0,128,0">Green</button>
+      <button id="blue-button" class="color-button" data-color="0,0,255">Blue</button>
+      <button id="indigo-button" class="color-button" data-color="75,0,130">Indigo</button>
+      <button id="violet-button" class="color-button" data-color="238,130,238">Violet</button>    
+    </div>
+    <div id="line-thickness-slider-container">
+      -
+      <input type="range" id="line-thickness-slider" min="1" max="30" value="10">
+      +
+      <div id="line-thickness-indicator-container">
+        <div id="line-thickness-indicator"></div>
+      </div>
+    </div>
   </div>
-  <div id="lineThicknessSliderContainer">
-    <input type="range" id="lineThicknessSlider" min="1" max="20" value="5" step="1">
-    <div id="lineThicknessIndicator"></div> <!-- Indicator for line thickness -->
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
   </div>
-  <canvas id="canvas"></canvas>
-  <button id="saveButton">Save Image</button>
-  <button id="clearButton">Clear</button>
+  <div id="important-buttons">
+    <button id="save-button">Save Image</button>
+    <button id="clear-button">Clear</button>
+  </div>
 </body>
 </html>
