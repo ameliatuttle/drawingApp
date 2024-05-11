@@ -1,0 +1,52 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  canvas {
+    border: 1px solid #000;
+  }
+
+ /* color*/
+ .colorButton {
+  margin: 5px;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.colorButton:focus {
+  outline: none;
+}
+
+#lineThicknessSliderContainer {
+  position: relative;
+  margin-top: 10px;
+}
+
+#lineThicknessSlider {
+  width: 100%;
+}
+
+#lineThicknessIndicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: black; /* Default color */
+}
+
+/* Add this CSS to your stylesheet */
+.cursor-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: black; /* Change the color as needed */
+  cursor: none; /* Hide the default cursor */
+}

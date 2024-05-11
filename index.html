@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Basic Drawing App | Amelia Tuttle | Sprint 1">
+  <title>Drawing App</title>
+  <link rel="stylesheet" href="main.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div id="colorButtons">
+    <button id="blackButton" class="colorButton" data-color="0,0,0">Black</button>
+    <button id="grayButton" class="colorButton" data-color="128,128,128">Gray</button>
+    <button id="whiteButton" class="colorButton" data-color="255,255,255">White</button>
+    <button id="redButton" class="colorButton" data-color="255,0,0">Red</button>
+    <button id="orangeButton" class="colorButton" data-color="255,165,0">Orange</button>
+    <button id="yellowButton" class="colorButton" data-color="255,255,0">Yellow</button>
+    <button id="greenButton" class="colorButton" data-color="0,128,0">Green</button>
+    <button id="blueButton" class="colorButton" data-color="0,0,255">Blue</button>
+    <button id="indigoButton" class="colorButton" data-color="75,0,130">Indigo</button>
+    <button id="violetButton" class="colorButton" data-color="238,130,238">Violet</button>    
+  </div>
+  <div id="lineThicknessSliderContainer">
+    <input type="range" id="lineThicknessSlider" min="1" max="20" value="5" step="1">
+    <div id="lineThicknessIndicator"></div> <!-- Indicator for line thickness -->
+  </div>
+  <canvas id="canvas"></canvas>
+  <button id="saveButton">Save Image</button>
+  <button id="clearButton">Clear</button>
+</body>
+</html>
