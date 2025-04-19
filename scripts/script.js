@@ -6,11 +6,11 @@ var Draw = /** @class */ (function () {
     function Draw(canvas) {
         var _this = this;
         this.canvas = canvas;
-        this.canvas.width = this.canvas.offsetWidth; // Thist sets the width of the canas so that it fits the screen of the device.
-        this.canvas.height = this.canvas.offsetHeight; // Thist sets the height of the canas so that it fits the screen of the device.
-        this.context = canvas.getContext("2d"); // Canvas has different methods so here we call the 2d one.
-        this.context.lineJoin = "round"; // These method makes the lines that are drawn more solidly drawn.
-        this.context.lineCap = "round"; // ^^^
+        this.context = canvas.getContext("2d");
+        // Set initial size
+        this.resizeCanvas();
+        this.context.lineJoin = "round";
+        this.context.lineCap = "round";
         this.isDrawing = false;
         this.x = 0;
         this.y = 0;
@@ -35,19 +35,30 @@ var Draw = /** @class */ (function () {
         // This creates a CanvasResizer instance after Draw has been fully initialized.
         this.canvasResizer = new CanvasResizer(canvas, this);
     }
+    // Add this new method
+    Draw.prototype.resizeCanvas = function () {
+        // Get the container's computed dimensions
+        var container = this.canvas.parentElement;
+        if (!container)
+            return;
+        var rect = container.getBoundingClientRect();
+        // Set the canvas dimensions to match the container's actual pixels
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+    };
     // This method tells the canvas when to start drawing the line.
     Draw.prototype.startDrawing = function (event) {
         var rect = this.canvas.getBoundingClientRect();
-        //  It will be at either a mouse clicking...
+        var scaleX = this.canvas.width / rect.width;
+        var scaleY = this.canvas.height / rect.height;
         if (event instanceof MouseEvent) {
-            this.x = event.clientX - rect.left;
-            this.y = event.clientY - rect.top;
-            // or a finger touching.
+            this.x = (event.clientX - rect.left) * scaleX;
+            this.y = (event.clientY - rect.top) * scaleY;
         }
         else if (event instanceof TouchEvent) {
             var touch = event.touches[0];
-            this.x = touch.clientX - rect.left;
-            this.y = touch.clientY - rect.top;
+            this.x = (touch.clientX - rect.left) * scaleX;
+            this.y = (touch.clientY - rect.top) * scaleY;
         }
         this.isDrawing = true;
     };
@@ -55,19 +66,17 @@ var Draw = /** @class */ (function () {
     Draw.prototype.drawing = function (event) {
         if (!this.isDrawing)
             return;
-        // This portion calculates what the coordinates are from the information passed from the event listeners
         var rect = this.canvas.getBoundingClientRect();
-        var offsetX = (event instanceof MouseEvent ? event.clientX : event.touches[0].clientX) - rect.left;
-        var offsetY = (event instanceof MouseEvent ? event.clientY : event.touches[0].clientY) - rect.top;
-        // This part actualy draws the line shape.
-        var path = new Path2D(); // This is a new instance of Path2d which defines the shape.
-        path.moveTo(this.x, this.y);
-        path.lineTo(offsetX, offsetY);
-        // This defines what the color andline thickness is by calling methods from those classes.
+        var scaleX = this.canvas.width / rect.width;
+        var scaleY = this.canvas.height / rect.height;
+        var offsetX = ((event instanceof MouseEvent ? event.clientX : event.touches[0].clientX) - rect.left) * scaleX;
+        var offsetY = ((event instanceof MouseEvent ? event.clientY : event.touches[0].clientY) - rect.top) * scaleY;
+        this.context.beginPath();
+        this.context.moveTo(this.x, this.y);
+        this.context.lineTo(offsetX, offsetY);
         this.context.strokeStyle = this.color.getCurrentColor();
         this.context.lineWidth = this.line.getCurrentLineThickness();
-        this.context.stroke(path);
-        // THis updates the x,y coordinates to the current mouse location.
+        this.context.stroke();
         this.x = offsetX;
         this.y = offsetY;
     };
@@ -189,25 +198,18 @@ var Clear = /** @class */ (function () {
 var CanvasResizer = /** @class */ (function () {
     function CanvasResizer(canvas, draw) {
         this.canvas = canvas;
-        this.draw = draw; // Add an instance of draw if it needs to receate the canvas.
-        // This calls for the canvas to be resized in the event that the window has been resized. 
+        this.draw = draw;
         window.addEventListener("resize", this.resizeCanvas.bind(this));
         this.resizeCanvas();
     }
-    // This resizes the canvas to appropriatly fit the new screen/browser dimentions.
     CanvasResizer.prototype.resizeCanvas = function () {
-        var screenWidth = window.innerWidth; // retrieves the window width and sets it to a variable.
-        var screenHeight = window.innerHeight; // retireves the window heigth and sets it to a variable
-        // Width and height variables are then set to equal 80% of the available space.
-        var widthPercentage = 80;
-        var heightPercentage = 80;
-        // Variables for width and heigth of the canvas are then calculated.
-        var canvasWidth = (widthPercentage / 100) * screenWidth;
-        var canvasHeight = (heightPercentage / 100) * screenHeight;
-        // These lines set this instance of the canvas to the variables fro width and height.
-        this.canvas.width = canvasWidth;
-        this.canvas.height = canvasHeight;
-        // After the canvas has been redrawn we need to make sure that the line type is recalled or else it makes the lines very messy.
+        var container = this.canvas.parentElement;
+        if (!container)
+            return;
+        var rect = container.getBoundingClientRect();
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+        // Restore context properties after resize
         this.draw.context.lineJoin = "round";
         this.draw.context.lineCap = "round";
     };

@@ -18,14 +18,17 @@ class Draw {
   // this class of objects and properties. The keyword "this" assigns instances.
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    this.canvas.width = this.canvas.offsetWidth; // Thist sets the width of the canas so that it fits the screen of the device.
-    this.canvas.height = this.canvas.offsetHeight; // Thist sets the height of the canas so that it fits the screen of the device.
-    this.context = canvas.getContext("2d") as CanvasRenderingContext2D; // Canvas has different methods so here we call the 2d one.
-    this.context.lineJoin = "round"; // These method makes the lines that are drawn more solidly drawn.
-    this.context.lineCap = "round"; // ^^^
+    this.context = canvas.getContext("2d") as CanvasRenderingContext2D;
+    
+    // Set initial size
+    this.resizeCanvas();
+    
+    this.context.lineJoin = "round";
+    this.context.lineCap = "round";
     this.isDrawing = false;
     this.x = 0;
     this.y = 0;
+    
     // These assign a property in the Draw class, instances of other classes.
     this.color = new Color();
     this.line = new Line(this.canvas);
@@ -51,42 +54,55 @@ class Draw {
     this.canvasResizer = new CanvasResizer(canvas, this);
   }
 
+  // Add this new method
+  private resizeCanvas() {
+    // Get the container's computed dimensions
+    const container = this.canvas.parentElement;
+    if (!container) return;
+    
+    const rect = container.getBoundingClientRect();
+    
+    // Set the canvas dimensions to match the container's actual pixels
+    this.canvas.width = rect.width;
+    this.canvas.height = rect.height;
+  }
+
   // This method tells the canvas when to start drawing the line.
-  startDrawing(event:MouseEvent|TouchEvent) {
-    const rect=this.canvas.getBoundingClientRect();
-    //  It will be at either a mouse clicking...
+  startDrawing(event: MouseEvent | TouchEvent) {
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    
     if (event instanceof MouseEvent) {
-      this.x = event.clientX-rect.left;
-      this.y = event.clientY-rect.top;
-    // or a finger touching.
+      this.x = (event.clientX - rect.left) * scaleX;
+      this.y = (event.clientY - rect.top) * scaleY;
     } else if (event instanceof TouchEvent) {
       const touch = event.touches[0];
-      this.x = touch.clientX - rect.left;
-      this.y = touch.clientY - rect.top;
+      this.x = (touch.clientX - rect.left) * scaleX;
+      this.y = (touch.clientY - rect.top) * scaleY;
     }
     this.isDrawing = true;
   }
   
   // This method draws a line untill the stopDrawing method tells it to stop.
-  drawing(event:MouseEvent|TouchEvent) {
+  drawing(event: MouseEvent | TouchEvent) {
     if (!this.isDrawing) return;
   
-    // This portion calculates what the coordinates are from the information passed from the event listeners
-    const rect =this.canvas.getBoundingClientRect();
-    const offsetX =(event instanceof MouseEvent? event.clientX : event.touches[0].clientX) - rect.left;
-    const offsetY =(event instanceof MouseEvent? event.clientY : event.touches[0].clientY) - rect.top;
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    
+    const offsetX = ((event instanceof MouseEvent ? event.clientX : event.touches[0].clientX) - rect.left) * scaleX;
+    const offsetY = ((event instanceof MouseEvent ? event.clientY : event.touches[0].clientY) - rect.top) * scaleY;
   
-    // This part actualy draws the line shape.
-    const path = new Path2D(); // This is a new instance of Path2d which defines the shape.
-    path.moveTo(this.x, this.y);
-    path.lineTo(offsetX, offsetY);
-  
-    // This defines what the color andline thickness is by calling methods from those classes.
+    this.context.beginPath();
+    this.context.moveTo(this.x, this.y);
+    this.context.lineTo(offsetX, offsetY);
+    
     this.context.strokeStyle = this.color.getCurrentColor();
     this.context.lineWidth = this.line.getCurrentLineThickness();
-    this.context.stroke(path);
+    this.context.stroke();
   
-    // THis updates the x,y coordinates to the current mouse location.
     this.x = offsetX;
     this.y = offsetY;
   }
@@ -238,30 +254,21 @@ class CanvasResizer {
 
   constructor(canvas: HTMLCanvasElement, draw: Draw) {
     this.canvas = canvas;
-    this.draw = draw; // Add an instance of draw if it needs to receate the canvas.
+    this.draw = draw;
 
-    // This calls for the canvas to be resized in the event that the window has been resized. 
     window.addEventListener("resize", this.resizeCanvas.bind(this));
     this.resizeCanvas();
   }
 
-  // This resizes the canvas to appropriatly fit the new screen/browser dimentions.
   resizeCanvas() {
-    const screenWidth = window.innerWidth; // retrieves the window width and sets it to a variable.
-    const screenHeight = window.innerHeight; // retireves the window heigth and sets it to a variable
-    // Width and height variables are then set to equal 80% of the available space.
-    const widthPercentage = 80;
-    const heightPercentage = 80;
+    const container = this.canvas.parentElement;
+    if (!container) return;
+    
+    const rect = container.getBoundingClientRect();
+    this.canvas.width = rect.width;
+    this.canvas.height = rect.height;
 
-    // Variables for width and heigth of the canvas are then calculated.
-    const canvasWidth = (widthPercentage / 100) * screenWidth;
-    const canvasHeight = (heightPercentage / 100) * screenHeight;
-
-    // These lines set this instance of the canvas to the variables fro width and height.
-    this.canvas.width = canvasWidth;
-    this.canvas.height = canvasHeight;
-
-    // After the canvas has been redrawn we need to make sure that the line type is recalled or else it makes the lines very messy.
+    // Restore context properties after resize
     this.draw.context.lineJoin = "round";
     this.draw.context.lineCap = "round";
   }
